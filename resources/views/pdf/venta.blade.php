@@ -3,32 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Comprobante de Venta</title>
+    <title>Venta #{{ $carro->id }}</title>
+
     <style>
         body {
-            font-family: DejaVu Sans;
+            font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
-            color: #111;
+            color: #333;
         }
 
-        .header {
+        h1 {
             text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .box {
-            border: 1px solid #333;
-            padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 15px;
         }
 
+        th,
         td {
+            border: 1px solid #ccc;
             padding: 6px;
+        }
+
+        th {
+            background: #eee;
         }
 
         .right {
@@ -36,78 +38,73 @@
         }
 
         .total {
-            font-size: 16px;
             font-weight: bold;
-            color: #16a34a;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h2>Comprobante de Venta</h2>
-        <p>Agencia de Autos</p>
-    </div>
+    <h1>Detalle de Venta</h1>
 
-    <div class="box">
-        <strong>Datos del vehículo</strong>
-        <table>
-            <tr>
-                <td>Marca:</td>
-                <td>{{ $carro->marca }}</td>
-            </tr>
-            <tr>
-                <td>Línea:</td>
-                <td>{{ $carro->linea }}</td>
-            </tr>
-            <tr>
-                <td>Modelo:</td>
-                <td>{{ $carro->modelo }}</td>
-            </tr>
-            <tr>
-                <td>Año:</td>
-                <td>{{ $carro->anio }}</td>
-            </tr>
-            <tr>
-                <td>Color:</td>
-                <td>{{ $carro->color }}</td>
-            </tr>
-        </table>
-    </div>
+    <table>
+        <tr>
+            <th>Carro</th>
+            <td>{{ $carro->marca }} {{ $carro->linea }} {{ $carro->modelo }}</td>
+        </tr>
+        <tr>
+            <th>Año</th>
+            <td>{{ $carro->anio }}</td>
+        </tr>
+        <tr>
+            <th>Fecha de venta</th>
+            <td>{{ optional($carro->fecha_venta)->format('d/m/Y') }}</td>
+        </tr>
+    </table>
 
-    <div class="box">
-        <strong>Información de la venta</strong>
-        <table>
+    <h3>Costos</h3>
+
+    <table>
+        <thead>
             <tr>
-                <td>Fecha de venta:</td>
-                <td>{{ \Carbon\Carbon::parse($carro->fecha_venta)->format('d/m/Y') }}</td>
+                <th>Concepto</th>
+                <th class="right">Monto</th>
             </tr>
+        </thead>
+        <tbody>
             <tr>
-                <td>Precio compra:</td>
+                <td>Precio de compra</td>
                 <td class="right">${{ number_format($carro->precio_compra, 2) }}</td>
             </tr>
-            <tr>
-                <td>Precio venta:</td>
-                <td class="right">${{ number_format($carro->precio_venta, 2) }}</td>
-            </tr>
-        </table>
-    </div>
 
-    <div class="box">
-        <table>
-            <tr>
-                <td class="right total">Ganancia:</td>
-                <td class="right total">
-                    ${{ number_format($ganancia, 2) }}
-                </td>
-            </tr>
-        </table>
-    </div>
+            @foreach($carro->gastos as $gasto)
+                <tr>
+                    <td>{{ $gasto->concepto }}</td>
+                    <td class="right">${{ number_format($gasto->monto, 2) }}</td>
+                </tr>
+            @endforeach
 
-    <p style="text-align:center;margin-top:30px;">
-        Documento generado automáticamente
-    </p>
+            <tr class="total">
+                <td>Costo real</td>
+                <td class="right">${{ number_format($carro->costo_real, 2) }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>Resultado</h3>
+
+    <table>
+        <tr>
+            <th>Precio de venta</th>
+            <td class="right">${{ number_format($carro->precio_venta, 2) }}</td>
+        </tr>
+        <tr class="total">
+            <th>Ganancia real</th>
+            <td class="right">
+                ${{ number_format($carro->ganancia_real, 2) }}
+            </td>
+        </tr>
+    </table>
 
 </body>
 

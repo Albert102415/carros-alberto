@@ -30,6 +30,7 @@ const deleteEmployee = async (id: number) => {
 </script>
 
 <template>
+
   <Head title="Employees" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
@@ -42,7 +43,8 @@ const deleteEmployee = async (id: number) => {
         </Button>
       </div>
 
-      <div class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
+      <div
+        class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border md:min-h-min">
         <Table>
           <TableCaption>Employee List.</TableCaption>
           <TableHeader>

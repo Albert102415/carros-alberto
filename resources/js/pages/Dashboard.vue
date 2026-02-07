@@ -16,12 +16,10 @@ const props = defineProps<{
 const totalEmployees = computed(() => props.employees?.length ?? 0)
 const totalCarros = computed(() => props.carros?.length ?? 0)
 const totalInventario = computed(() =>
-  props.carros?.reduce(
-    (sum, c) => sum + Number(c.precio_compra ?? 0),
-    0
-  )
+  props.carros
+    ?.filter(c => c.estado !== 'vendido')
+    .reduce((sum, c) => sum + Number(c.precio_compra ?? 0), 0)
 )
-
 
 /* ======================
    CHART REFS

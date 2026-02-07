@@ -72,5 +72,16 @@ class CarroController extends Controller
         $carro->delete();
         return redirect()->route('carros.index');
     }
+    public function marcarVendido(Request $request, Carro $carro)
+    {
+        $carro->update([
+            'estado' => 'vendido',
+            'precio_venta' => $request->precio_venta,
+            'fecha_venta' => now(), // 🔥 AQUÍ
+        ]);
+
+        return redirect()->route('ventas.index');
+    }
+
 
 }

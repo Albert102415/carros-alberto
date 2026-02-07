@@ -5,6 +5,15 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CarroController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GastoController;
+
+Route::post('/carros/{carro}/gastos', [GastoController::class, 'store']);
+Route::delete('/gastos/{gasto}', [GastoController::class, 'destroy']);
+
+
+Route::post('/carros/{carro}/gastos', [GastoController::class, 'store']);
+Route::delete('/gastos/{id}', [GastoController::class, 'destroy']);
+
 
 Route::middleware(['auth', 'verified'])->get(
     '/dashboard',

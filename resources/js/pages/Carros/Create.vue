@@ -67,7 +67,7 @@ const submit = () => {
         </div>
 
         <div>
-          <Label>Fecha de Venta</Label>
+          <Label>Año de Venta</Label>
           <Input type="number" v-model="form.anio" required />
         </div>
 

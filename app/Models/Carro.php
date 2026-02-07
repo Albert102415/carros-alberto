@@ -18,12 +18,39 @@ class Carro extends Model
         'fecha_venta',
     ];
 
-    public function getGananciaAttribute()
+    protected $appends = [
+        'costo_real',
+        'ganancia_real',
+    ];
+
+    public function gastos()
     {
-        if ($this->estado === 'vendido' && $this->precio_venta && $this->precio_compra) {
-            return $this->precio_venta - $this->precio_compra;
+        return $this->hasMany(Gasto::class);
+    }
+
+    // 🔥 PRECIO COMPRA + GASTOS
+    public function getCostoRealAttribute()
+    {
+        return $this->precio_compra + $this->gastos->sum('monto');
+    }
+
+    // 🔥 GANANCIA FINAL
+    public function getGananciaRealAttribute()
+    {
+        if ($this->estado !== 'vendido') {
+            return null;
         }
 
-        return null;
+        return $this->precio_venta - $this->costo_real;
     }
+    protected static function booted()
+    {
+        static::updating(function ($carro) {
+            if ($carro->isDirty('estado') && $carro->estado === 'vendido') {
+                $carro->fecha_venta = now();
+            }
+        });
+    }
+
 }
+
