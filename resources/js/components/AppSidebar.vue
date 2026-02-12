@@ -12,40 +12,29 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
+        routeName: 'dashboard',
         icon: LayoutGrid,
     },
     {
         title: 'Employees',
         href: '/employees',
+        routeName: 'employees.index',
         icon: UsersRound,
     },
-
     {
         title: 'Carros',
         href: '/carros',
+        routeName: 'carros.index',
         icon: CarFront,
     },
-
     {
         title: 'Ventas',
         href: '/ventas',
+        routeName: 'ventas.index',
         icon: DollarSign,
     },
-
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
-];
 </script>
 
 <template>
