@@ -20,7 +20,7 @@ const form = ref({
   color: props.carro.color ?? '',
   precio_compra: props.carro.precio_compra ?? 0,
   precio_venta: props.carro.precio_venta ?? 0,
-  fecha_venta: props.carro.fecha_venta ?? '',   // ✅ NUEVO
+  fecha_venta: props.carro.fecha_venta ?? '',
   estado: props.carro.estado ?? 'disponible',
 })
 
@@ -33,7 +33,6 @@ const submit = () => {
 ============================= */
 const gasto = ref({
   concepto: '',
-  proveedor: '',   // ✅ NUEVO
   monto: '',
 })
 
@@ -43,7 +42,7 @@ const addGasto = () => {
   router.post(`/carros/${form.value.id}/gastos`, gasto.value, {
     preserveScroll: true,
     onSuccess: () => {
-      gasto.value = { concepto: '', proveedor: '', monto: '' }
+      gasto.value = { concepto: ' ', monto: '' }
     },
   })
 }
