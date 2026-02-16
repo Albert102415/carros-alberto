@@ -20,6 +20,7 @@ const form = ref({
   color: props.carro.color ?? '',
   precio_compra: props.carro.precio_compra ?? 0,
   precio_venta: props.carro.precio_venta ?? 0,
+  fecha_venta: props.carro.fecha_venta ?? '',   // ✅ NUEVO
   estado: props.carro.estado ?? 'disponible',
 })
 
@@ -32,6 +33,7 @@ const submit = () => {
 ============================= */
 const gasto = ref({
   concepto: '',
+  proveedor: '',   // ✅ NUEVO
   monto: '',
 })
 
@@ -41,7 +43,7 @@ const addGasto = () => {
   router.post(`/carros/${form.value.id}/gastos`, gasto.value, {
     preserveScroll: true,
     onSuccess: () => {
-      gasto.value = { concepto: '', monto: '' }
+      gasto.value = { concepto: '', proveedor: '', monto: '' }
     },
   })
 }
@@ -88,11 +90,6 @@ const costoReal = computed(() =>
         </div>
 
         <div>
-          <Label>Año de Venta</Label>
-          <Input type="number" v-model="form.anio" required />
-        </div>
-
-        <div>
           <Label>Color</Label>
           <Input v-model="form.color" />
         </div>
@@ -106,6 +103,12 @@ const costoReal = computed(() =>
         <div v-if="form.estado === 'vendido'">
           <Label>Precio de venta</Label>
           <Input type="number" step="0.01" v-model="form.precio_venta" required />
+        </div>
+
+        <!-- ✅ NUEVA FECHA DE VENTA -->
+        <div v-if="form.estado === 'vendido'">
+          <Label>Fecha de venta</Label>
+          <Input type="date" v-model="form.fecha_venta" required />
         </div>
 
         <div>
@@ -140,24 +143,21 @@ const costoReal = computed(() =>
         <Button type="submit">Agregar</Button>
       </form>
 
-
       <ul class="mt-4 space-y-2">
         <li v-for="g in props.carro.gastos" :key="g.id" class="flex justify-between items-center border-b py-1">
           <div>
             <p class="font-medium">{{ g.concepto }}</p>
+            <p class="text-sm text-gray-500">
+            </p>
             <p class="text-sm text-gray-500">${{ g.monto }}</p>
           </div>
 
-          <Button size="sm" class="bg-red-600 hover:bg-red-700 text-white" @click="
-            router.delete(`/gastos/${g.id}`, {
-              preserveScroll: true,
-            })
-            ">
+          <Button size="sm" class="bg-red-600 hover:bg-red-700 text-white"
+            @click="router.delete(`/gastos/${g.id}`, { preserveScroll: true })">
             Eliminar
           </Button>
         </li>
       </ul>
-
 
       <!-- =============================
            RESUMEN

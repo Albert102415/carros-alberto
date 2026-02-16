@@ -51,6 +51,12 @@ class Carro extends Model
             }
         });
     }
+    public function ganancias()
+    {
+        return $this->hasOne(Ganancia::class);
+    }
+
+
 
 }
 

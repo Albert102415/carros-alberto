@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Carro;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Ganancia;
 
 class CarroController extends Controller
 {
@@ -54,14 +55,35 @@ class CarroController extends Controller
             'precio_compra' => 'nullable|numeric|min:0',
             'precio_venta' => 'nullable|numeric|min:0',
             'estado' => 'required|in:disponible,apartado,vendido',
+            'fecha_venta' => 'nullable|date',
         ]);
 
-        // Si se vende, guarda fecha de venta
-        if ($data['estado'] === 'vendido' && !$carro->fecha_venta) {
+        // Si se vende y no trae fecha, poner fecha actual
+        if ($data['estado'] === 'vendido' && empty($data['fecha_venta'])) {
             $data['fecha_venta'] = now();
         }
 
         $carro->update($data);
+
+        /* ===========================
+           GENERAR GANANCIA AUTOMÁTICA
+        ============================ */
+        if ($data['estado'] === 'vendido' && $data['precio_venta']) {
+
+            $totalGastos = $carro->gastos()->sum('monto');
+            $totalInvertido = ($carro->precio_compra ?? 0) + $totalGastos;
+            $gananciaFinal = $data['precio_venta'] - $totalInvertido;
+
+            Ganancia::updateOrCreate(
+                ['carro_id' => $carro->id],
+                [
+                    'total_invertido' => $totalInvertido,
+                    'precio_venta' => $data['precio_venta'],
+                    'ganancia' => $gananciaFinal,
+                    'fecha_venta' => $data['fecha_venta'],
+                ]
+            );
+        }
 
         return redirect()->route('carros.index');
     }
@@ -82,6 +104,5 @@ class CarroController extends Controller
 
         return redirect()->route('ventas.index');
     }
-
 
 }
