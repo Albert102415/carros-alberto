@@ -28,16 +28,16 @@ const mainNavItems: NavItem[] = [
         icon: CarFront,
     },
     {
-        title: 'Customers',
-        href: '/customers',
-        routeName: 'customers.index',
-        icon: PersonStanding,
-    },
-    {
         title: 'Ventas',
         href: '/ventas',
         routeName: 'ventas.index',
         icon: DollarSign,
+    },
+    {
+        title: 'Customers',
+        href: '/customers',
+        routeName: 'customers.index',
+        icon: PersonStanding,
     },
 ];
 

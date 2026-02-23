@@ -44,6 +44,7 @@ const formatMoney = (value: number | null) => {
           <thead class="bg-black text-white sticky top-0">
             <tr>
               <th class="p-2 text-left">Carro</th>
+              <th class="p-2 text-center">Proveedor</th>
               <th class="p-2">Fecha de Venta</th>
               <th class="p-2">Estado</th>
               <th class="p-2 text-right">Compra</th>
@@ -59,6 +60,8 @@ const formatMoney = (value: number | null) => {
               <td class="p-2 font-medium">
                 {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }}
               </td>
+
+              <td class="p-2 text-center">{{ carro.proveedor }}</td>
 
               <td class="p-2 text-center">{{ carro.fecha_venta }}</td>
 

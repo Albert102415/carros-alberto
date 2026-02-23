@@ -16,10 +16,11 @@ const form = ref({
   marca: '',
   linea: '',
   modelo: '',
-  anio: undefined as number | undefined,
   color: '',
+  proveedor: '',
   precio_compra: undefined as number | undefined,
   estado: 'disponible',
+  imagen: null as File | null,
 })
 
 const resetForm = () => {
@@ -27,17 +28,44 @@ const resetForm = () => {
     marca: '',
     linea: '',
     modelo: '',
-    anio: undefined,
     color: '',
+    proveedor: '',
     precio_compra: undefined,
     estado: 'disponible',
+    imagen: null as File | null,
+
   }
 }
 
 const submit = () => {
-  router.post('/carros', form.value, {
+  const data = new FormData()
+
+  Object.keys(form.value).forEach((key) => {
+    const value = form.value[key as keyof typeof form.value]
+    if (value !== null && value !== undefined) {
+      data.append(key, value as any)
+    }
+  })
+
+  router.post('/carros', data, {
+    forceFormData: true,
     onSuccess: resetForm,
   })
+}
+
+const imagenPreview = ref<string | null>(null)
+
+const handleImageChange = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    form.value.imagen = target.files[0]
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      imagenPreview.value = reader.result as string
+    }
+    reader.readAsDataURL(target.files[0])
+  }
 }
 </script>
 
@@ -67,13 +95,18 @@ const submit = () => {
         </div>
 
         <div>
-          <Label>Año de Venta</Label>
-          <Input type="number" v-model="form.anio" required />
+          <Label>Proveedor</Label>
+          <Input v-model="form.proveedor" required />
         </div>
 
         <div>
           <Label>Color</Label>
           <Input v-model="form.color" />
+        </div>
+
+        <div>
+          <Label>Foto del vehículo</Label>
+          <Input type="file" accept="image/*" @change="handleImageChange" />
         </div>
 
         <div>
@@ -101,6 +134,14 @@ const submit = () => {
         </div>
 
       </form>
+      <div class="w-1/2 flex items-center justify-center">
+        <div v-if="imagenPreview" class="w-full">
+          <img :src="imagenPreview" class="rounded-xl shadow-xl w-full h-[400px] object-cover" />
+        </div>
+        <div v-else class="text-gray-400 text-center">
+          La imagen se verá aquí
+        </div>
+      </div>
     </div>
   </AppLayout>
 </template>
