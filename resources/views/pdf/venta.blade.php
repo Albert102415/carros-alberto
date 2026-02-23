@@ -54,7 +54,7 @@
         </tr>
         <tr>
             <th>Año</th>
-            <td>{{ $carro->anio }}</td>
+            <td>{{ $carro->Año }}</td>
         </tr>
         <tr>
             <th>Fecha de venta</th>

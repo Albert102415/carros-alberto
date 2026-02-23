@@ -13,4 +13,15 @@ class Employee extends Model
         'salary',
     ];
 
+    public function carros()
+    {
+        return $this->belongsToMany(
+            \App\Models\Carro::class,
+            'car_employee',
+            'employee_id',
+            'carro_id'
+        )
+            ->withPivot('pagado')
+            ->withTimestamps();
+    }
 }

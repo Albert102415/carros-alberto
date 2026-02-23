@@ -31,9 +31,9 @@ const formatMoney = (value: number | null) => {
       <div class="flex justify-between items-center">
         <h1 class="text-2xl font-bold">Inventario de Carros</h1>
 
-        <Button as-child size="sm" class="bg-indigo-600 hover:bg-indigo-700">
+        <Button as-child size="sm" class="bg-indigo-500 hover:bg-indigo-700 text-white">
           <a href="/carros/create">
-            <CirclePlus class="mr-2" /> Nuevo
+            <CirclePlus />Create
           </a>
         </Button>
       </div>

@@ -4,7 +4,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, usePage, Link, router } from '@inertiajs/vue3';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash, CirclePlus } from 'lucide-vue-next';
+import { Pencil, Trash, CirclePlus, Car } from 'lucide-vue-next'; // Agregamos Car icon
 import { computed } from 'vue';
 import { Employee } from '@/types';
 
@@ -38,7 +38,7 @@ const deleteEmployee = async (id: number) => {
       <div class="flex">
         <Button as-child size="sm" class="bg-indigo-500 hover:bg-indigo-700 text-white">
           <Link href="/employees/create">
-            <CirclePlus /> Create
+            <CirclePlus />Create
           </Link>
         </Button>
       </div>
@@ -65,11 +65,19 @@ const deleteEmployee = async (id: number) => {
                 {{ new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(employee.salary) }}
               </TableCell>
               <TableCell class="flex justify-center gap-2">
-                <Button as-child size="sm" class="bg-blue-500 hover:bg-blue-700 text-white">
+                <Button as-child size="sm" variant="outline">
                   <Link :href="`/employees/${employee.id}/edit`">
                     <Pencil />
                   </Link>
                 </Button>
+
+                <!-- Botón Carros -->
+                <Button as-child size="sm" class="bg-indigo-500 hover:bg-indigo-700 text-white">
+                  <Link :href="`/employees/${employee.id}/carros`">
+                    <Car /> Carros
+                  </Link>
+                </Button>
+
                 <Button size="sm" class="bg-rose-500 hover:bg-rose-700 text-white" @click="deleteEmployee(employee.id)">
                   <Trash />
                 </Button>

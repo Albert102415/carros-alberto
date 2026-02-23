@@ -1,19 +1,16 @@
 <?php
-
-use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeCarController;
 use App\Http\Controllers\CarroController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GastoController;
+use App\Http\Controllers\CustomerController;
+
 
 Route::post('/carros/{carro}/gastos', [GastoController::class, 'store']);
 Route::delete('/gastos/{gasto}', [GastoController::class, 'destroy']);
-
-
-Route::post('/carros/{carro}/gastos', [GastoController::class, 'store']);
-Route::delete('/gastos/{id}', [GastoController::class, 'destroy']);
-
 
 Route::middleware(['auth', 'verified'])->get(
     '/dashboard',
@@ -42,6 +39,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 });
 
+
+Route::get('/employees/{employee}/carros', [EmployeeCarController::class, 'index']);
+Route::post('/employees/{employee}/carros/{carro}/attach', [EmployeeCarController::class, 'attach']);
+Route::post('/employees/{employee}/carros/{carro}/toggle', [EmployeeCarController::class, 'toggle']);
+
 Route::middleware(['auth', 'verified'])->get('/ventas', function () {
     return Inertia::render('Ventas/Index', [
         'ventas' => \App\Models\Carro::where('estado', 'vendido')
@@ -55,7 +57,11 @@ Route::middleware(['auth', 'verified'])->get(
     [\App\Http\Controllers\VentaPdfController::class, 'show']
 )->name('ventas.pdf');
 
+Route::middleware(['auth', 'verified'])->group(function () {
 
+    Route::resource('customers', CustomerController::class);
+
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
