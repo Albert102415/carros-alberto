@@ -98,14 +98,13 @@ onMounted(async () => {
   <Head title="Dashboard" />
 
   <AppLayout>
-    <div class="p-6 text-white space-y-8">
+    <div class="p-6 text-white space-y-10">
 
       <h1 class="text-2xl font-bold">Dashboard</h1>
 
       <!-- ================= KPIs ================= -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <!-- EMPLEADOS -->
         <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 p-5 rounded-xl shadow-lg
                  transition-transform duration-300 hover:scale-[1.05] hover:shadow-2xl">
           <div class="flex items-center justify-between">
@@ -117,7 +116,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- INVENTARIO -->
         <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 p-5 rounded-xl shadow-lg
                  transition-transform duration-300 hover:scale-[1.05] hover:shadow-2xl">
           <div class="flex items-center justify-between">
@@ -129,7 +127,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- VALOR INVENTARIO -->
         <div class="bg-gradient-to-br from-amber-600 to-amber-800 p-5 rounded-xl shadow-lg
                  transition-transform duration-300 hover:scale-[1.05] hover:shadow-2xl">
           <div class="flex items-center justify-between">
@@ -147,20 +144,22 @@ onMounted(async () => {
 
       <!-- ================= GRAFICAS ================= -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-gray-900 p-4 rounded-xl hover:shadow-xl transition">
-          <p class="font-semibold mb-2">Carros por Marca</p>
+
+        <div class="p-4 border-t border-gray-800">
+          <p class="font-semibold mb-4">Carros por Marca</p>
           <canvas ref="carrosChart" />
         </div>
 
-        <div class="bg-gray-900 p-4 rounded-xl hover:shadow-xl transition">
-          <p class="font-semibold mb-2">Empleados por Puesto</p>
+        <div class="p-4 border-t border-gray-800">
+          <p class="font-semibold mb-4">Empleados por Puesto</p>
           <canvas ref="empleadosChart" />
         </div>
+
       </div>
 
       <!-- ================= ULTIMOS CARROS ================= -->
-      <div class="bg-gray-900 rounded-xl p-4">
-        <p class="font-semibold mb-3">Últimos Carros en Inventario</p>
+      <div class="p-4 border-t border-gray-800">
+        <p class="font-semibold mb-4">Últimos Carros en Inventario</p>
 
         <table class="w-full text-sm">
           <thead class="border-b border-gray-700 text-gray-400">
@@ -187,8 +186,8 @@ onMounted(async () => {
       </div>
 
       <!-- ================= RANKING ================= -->
-      <div class="bg-gray-900 rounded-xl p-4">
-        <p class="font-semibold mb-3">Carros más rentables</p>
+      <div class="p-4 border-t border-gray-800">
+        <p class="font-semibold mb-4">Carros más rentables</p>
 
         <table class="w-full text-sm">
           <thead class="border-b border-gray-700 text-gray-400">
