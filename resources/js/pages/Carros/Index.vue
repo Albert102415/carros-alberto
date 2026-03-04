@@ -68,6 +68,7 @@ const formatMoney = (value: number | null) => {
               <td class="p-2 text-center">
                 <span class="px-2 py-1 rounded-full text-xs font-semibold" :class="{
                   'bg-green-600 text-white': carro.estado === 'vendido',
+                  'bg-purple-600 text-white': carro.estado === 'taller',
                   'bg-yellow-500 text-black': carro.estado === 'apartado',
                   'bg-blue-600 text-white': carro.estado === 'disponible',
                 }">

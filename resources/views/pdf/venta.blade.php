@@ -9,12 +9,47 @@
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
-            color: #333;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            width: 350px;
+            transform: translate(-50%, -50%);
+            opacity: 0.07;
+            /* Transparencia elegante */
+            z-index: -1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 120px;
+            margin-bottom: 5px;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 10px;
+            margin: 0;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #e5e7eb;
+            margin: 15px 0;
         }
 
         table {
@@ -25,12 +60,13 @@
 
         th,
         td {
-            border: 1px solid #ccc;
-            padding: 6px;
+            border: 1px solid #e5e7eb;
+            padding: 8px;
         }
 
         th {
-            background: #eee;
+            background: #f3f4f6;
+            text-align: left;
         }
 
         .right {
@@ -39,13 +75,36 @@
 
         .total {
             font-weight: bold;
+            background: #f9fafb;
+        }
+
+        .ganancia {
+            font-size: 14px;
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 25px;
+            color: #9ca3af;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Detalle de Venta</h1>
+    <!-- WATERMARK -->
+    <img src="{{ public_path('images/BASS.png') }}" class="watermark">
+
+    <div class="header">
+        <img src="{{ public_path('images/BASS.png') }}" class="logo">
+        <h1>Carros Alberto</h1>
+        <div class="subtitle">Reporte de Venta</div>
+    </div>
+
+    <hr>
 
     <table>
         <tr>
@@ -62,7 +121,7 @@
         </tr>
     </table>
 
-    <h3>Costos</h3>
+    <h3>Detalle de Costos</h3>
 
     <table>
         <thead>
@@ -91,7 +150,7 @@
         </tbody>
     </table>
 
-    <h3>Resultado</h3>
+    <h3>Resultado Final</h3>
 
     <table>
         <tr>
@@ -100,11 +159,15 @@
         </tr>
         <tr class="total">
             <th>Ganancia real</th>
-            <td class="right">
+            <td class="right ganancia">
                 ${{ number_format($carro->ganancia_real, 2) }}
             </td>
         </tr>
     </table>
+
+    <div class="footer">
+        Documento generado automáticamente el {{ now()->format('d/m/Y H:i') }}
+    </div>
 
 </body>
 

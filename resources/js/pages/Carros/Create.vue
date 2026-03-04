@@ -119,6 +119,7 @@ const handleImageChange = (e: Event) => {
           <select v-model="form.estado"
             class="w-full rounded-md border border-gray-700 bg-background px-3 py-2 text-sm">
             <option value="disponible">Disponible</option>
+            <option value="taller">Taller</option>
             <option value="apartado">Apartado</option>
             <option value="vendido">Vendido</option>
           </select>

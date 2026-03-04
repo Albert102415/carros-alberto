@@ -67,7 +67,7 @@ class CarroController extends Controller
             'proveedor' => 'nullable|string|max:30',
             'precio_compra' => 'nullable|numeric|min:0',
             'precio_venta' => 'nullable|numeric|min:0',
-            'estado' => 'required|in:disponible,apartado,vendido',
+            'estado' => 'required|in:disponible,taller,apartado,vendido',
             'fecha_venta' => 'nullable|date',
             'imagen' => 'nullable|image|max:2048',
         ]);
