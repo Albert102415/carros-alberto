@@ -96,7 +96,7 @@ const carrosFiltrados = computed(() => {
       v2 = new Date(v2)
     }
 
-    if (direccion.value === 'asc') {
+    if (direccion.value === 'desc') {
       return v1 > v2 ? 1 : -1
     } else {
       return v1 < v2 ? 1 : -1
@@ -224,7 +224,7 @@ const cambiarPagina = (p: number) => {
               class="border-b hover:bg-gray-100 dark:hover:bg-gray-800">
 
               <td class="p-2 font-medium">
-                {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }}
+                {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }} {{ carro.color }}
               </td>
 
               <td class="text-center">{{ carro.proveedor }}</td>
@@ -249,7 +249,8 @@ const cambiarPagina = (p: number) => {
 
               <td class="text-right font-bold">
 
-                <span v-if="carro.estado === 'vendido'" :class="carro.ganancia_real >= 0 ? 'text-green-600' : 'text-red-600'">
+                <span v-if="carro.estado === 'vendido'"
+                  :class="carro.ganancia_real >= 0 ? 'text-green-600' : 'text-red-600'">
                   {{ formatMoney(carro.ganancia_real) }}
                 </span>
 

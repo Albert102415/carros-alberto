@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
+import { ref, computed } from 'vue'
 
 const props = defineProps<{
     employee: {
@@ -12,26 +13,103 @@ const props = defineProps<{
     carros: any[]
 }>()
 
-/**
- * Verifica si el carro está asignado al empleado
- */
-const isAssigned = (carroId: number) => {
-    return props.employee.carros?.find(
-        (carro: any) => carro.id === carroId
-    )
+/* =========================
+FILTROS
+========================= */
+
+const filtroMarca = ref('')
+const filtroPago = ref('')
+
+const marcas = computed(() => {
+    return [...new Set(props.carros.map(c => c.marca))]
+})
+
+/* =========================
+CONTADOR
+========================= */
+
+const totalAsignados = computed(() => {
+    return props.employee.carros?.length ?? 0
+})
+
+/* =========================
+FILTRADO + ORDEN
+========================= */
+
+const carrosFiltrados = computed(() => {
+
+    let data = props.carros
+
+    // filtro marca
+    if (filtroMarca.value) {
+        data = data.filter(c => c.marca === filtroMarca.value)
+    }
+
+    // filtro pago
+    if (filtroPago.value) {
+
+        data = data.filter(c => {
+
+            const asignado = props.employee.carros?.find(e => e.id === c.id)
+
+            if (!asignado) return false
+
+            if (filtroPago.value === 'pagado') {
+                return asignado.pivot?.pagado
+            }
+
+            if (filtroPago.value === 'nopagado') {
+                return !asignado.pivot?.pagado
+            }
+
+            return true
+
+        })
+
+    }
+
+    // orden descendente
+    return [...data].sort((a, b) => b.id - a.id)
+
+})
+
+/* =========================
+PAGINACION
+========================= */
+
+const paginaActual = ref(1)
+const porPagina = 6
+
+const totalPaginas = computed(() => {
+    return Math.ceil(carrosFiltrados.value.length / porPagina)
+})
+
+const carrosPaginados = computed(() => {
+
+    const inicio = (paginaActual.value - 1) * porPagina
+    const fin = inicio + porPagina
+
+    return carrosFiltrados.value.slice(inicio, fin)
+
+})
+
+const cambiarPagina = (p: number) => {
+    paginaActual.value = p
 }
 
-/**
- * Verifica si el carro está pagado
- */
+/* =========================
+FUNCIONES
+========================= */
+
+const isAssigned = (carroId: number) => {
+    return props.employee.carros?.find(c => c.id === carroId)
+}
+
 const isPagado = (carroId: number) => {
     const carro = isAssigned(carroId)
     return carro?.pivot?.pagado ?? false
 }
 
-/**
- * Cambiar estado pagado / no pagado
- */
 const togglePago = (carroId: number) => {
     router.post(
         `/employees/${props.employee.id}/carros/${carroId}/toggle`,
@@ -40,9 +118,6 @@ const togglePago = (carroId: number) => {
     )
 }
 
-/**
- * Asignar carro al empleado
- */
 const assignCar = (carroId: number) => {
     router.post(
         `/employees/${props.employee.id}/carros/${carroId}/attach`,
@@ -50,6 +125,7 @@ const assignCar = (carroId: number) => {
         { preserveScroll: true }
     )
 }
+
 </script>
 
 <template>
@@ -57,51 +133,92 @@ const assignCar = (carroId: number) => {
     <Head title="Carros del Empleado" />
 
     <AppLayout>
+
         <div class="p-6 space-y-6">
 
-            <!-- Título -->
-            <h1 class="text-2xl font-bold">
-                Carros de {{ employee.nombre }}
-            </h1>
+            <!-- TITULO -->
 
-            <!-- Tabla -->
+            <div class="flex justify-between items-center">
+
+                <h1 class="text-2xl font-bold">
+                    Carros de {{ employee.nombre }}
+                </h1>
+
+                <div class="text-sm bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded">
+                    Asignados: <b>{{ totalAsignados }}</b>
+                </div>
+
+            </div>
+
+            <!-- FILTROS -->
+
+            <div class="flex gap-3">
+
+                <select v-model="filtroMarca" class="border rounded px-3 py-1 text-sm">
+
+                    <option value="">Todas las marcas</option>
+
+                    <option v-for="m in marcas" :key="m" :value="m">
+                        {{ m }}
+                    </option>
+
+                </select>
+
+                <select v-model="filtroPago" class="border rounded px-3 py-1 text-sm">
+
+                    <option value="">Estado de pago</option>
+                    <option value="pagado">Pagado</option>
+                    <option value="nopagado">No Pagado</option>
+
+                </select>
+
+            </div>
+
+            <!-- TABLA -->
+
             <div class="rounded-lg border overflow-hidden">
+
                 <table class="min-w-full text-sm">
+
                     <thead class="bg-muted">
+
                         <tr>
                             <th class="px-6 py-3 text-left">Carro</th>
                             <th class="px-6 py-3 text-left">Estado</th>
                             <th class="px-6 py-3 text-right">Acción</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
-                        <tr v-for="carro in carros" :key="carro.id" class="border-t">
-                            <!-- Nombre del carro -->
+
+                        <tr v-for="carro in carrosPaginados" :key="carro.id" class="border-t">
+
                             <td class="px-6 py-4">
-                                {{ carro.linea }}
+                                {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }} {{ carro.color }}
                             </td>
 
-                            <!-- Estado -->
                             <td class="px-6 py-4">
+
                                 <span v-if="isAssigned(carro.id)">
+
                                     <span :class="isPagado(carro.id)
                                         ? 'text-green-600 font-semibold'
-                                        : 'text-red-600 font-semibold'">
-                                        {{
-                                            isPagado(carro.id)
-                                                ? 'Pagado'
-                                                : 'No Pagado'
-                                        }}
+                                        : 'text-red-600 font-semibold'
+                                        ">
+
+                                        {{ isPagado(carro.id) ? 'Pagado' : 'No Pagado' }}
+
                                     </span>
+
                                 </span>
 
                                 <span v-else class="text-gray-400">
                                     No asignado
                                 </span>
+
                             </td>
 
-                            <!-- Botones -->
                             <td class="px-6 py-4 text-right space-x-2">
 
                                 <Button v-if="!isAssigned(carro.id)" size="sm" @click="assignCar(carro.id)">
@@ -114,19 +231,36 @@ const assignCar = (carroId: number) => {
                                 </Button>
 
                             </td>
+
                         </tr>
 
-                        <!-- Si no hay carros -->
-                        <tr v-if="carros.length === 0">
+                        <tr v-if="carrosFiltrados.length === 0">
+
                             <td colspan="3" class="text-center py-6 text-muted-foreground">
                                 No hay carros registrados.
                             </td>
+
                         </tr>
 
                     </tbody>
+
                 </table>
+
+            </div>
+
+            <!-- PAGINACION -->
+
+            <div class="flex justify-center gap-2">
+
+                <button v-for="p in totalPaginas" :key="p" @click="cambiarPagina(p)" class="px-3 py-1 border rounded"
+                    :class="p === paginaActual ? 'bg-indigo-600 text-white' : ''">
+                    {{ p }}
+                </button>
+
             </div>
 
         </div>
+
     </AppLayout>
+
 </template>
