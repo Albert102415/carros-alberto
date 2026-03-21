@@ -31,6 +31,7 @@ class CarroController extends Controller
             'marca' => 'required',
             'linea' => 'required',
             'modelo' => 'required',
+            'color' => 'required',
             'proveedor' => 'required',
             'precio_compra' => 'required|numeric',
             'estado' => 'required',

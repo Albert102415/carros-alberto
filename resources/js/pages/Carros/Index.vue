@@ -146,7 +146,7 @@ const cambiarPagina = (p: number) => {
 
         <Button as-child size="sm" class="bg-indigo-600 hover:bg-indigo-700 text-white">
           <a href="/carros/create">
-            <CirclePlus /> Crear
+            <CirclePlus /> Add
           </a>
         </Button>
 
