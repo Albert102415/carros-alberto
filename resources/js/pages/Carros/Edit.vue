@@ -9,6 +9,15 @@ import { Label } from '@/components/ui/label'
 const props = defineProps<{ carro: any }>()
 
 /* =============================
+   FORMAT MONEY
+============================= */
+const money = (v: number) =>
+  new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+  }).format(v)
+
+/* =============================
    IMAGEN
 ============================= */
 const imagenPreview = ref<string | null>(
@@ -21,13 +30,17 @@ const handleImageChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
     form.value.imagen = target.files[0]
-
     const reader = new FileReader()
     reader.onload = () => {
       imagenPreview.value = reader.result as string
     }
     reader.readAsDataURL(target.files[0])
   }
+}
+
+const quitarImagen = () => {
+  imagenPreview.value = null
+  form.value.imagen = null
 }
 
 /* =============================
@@ -47,7 +60,10 @@ const form = ref({
   imagen: null as File | null,
 })
 
+const loading = ref(false)
+
 const submit = () => {
+  loading.value = true
   const data = new FormData()
 
   Object.keys(form.value).forEach((key) => {
@@ -57,11 +73,12 @@ const submit = () => {
     }
   })
 
-  // 👇 IMPORTANTE
   data.append('_method', 'PUT')
 
   router.post(`/carros/${form.value.id}`, data, {
     forceFormData: true,
+    onSuccess: () => alert('✅ Cambios guardados correctamente'),
+    onFinish: () => { loading.value = false },
   })
 }
 
@@ -79,9 +96,14 @@ const addGasto = () => {
   router.post(`/carros/${form.value.id}/gastos`, gasto.value, {
     preserveScroll: true,
     onSuccess: () => {
-      gasto.value = { concepto: ' ', monto: '' }
+      gasto.value = { concepto: '', monto: '' }
     },
   })
+}
+
+const eliminarGasto = (id: number) => {
+  if (!confirm('¿Eliminar este gasto?')) return
+  router.delete(`/gastos/${id}`, { preserveScroll: true })
 }
 
 /* =============================
@@ -94,6 +116,16 @@ const totalGastos = computed(() =>
 const costoReal = computed(() =>
   Number(form.value.precio_compra) + totalGastos.value
 )
+
+/* =============================
+   BADGE ESTADO
+============================= */
+const badgeClass = computed(() => ({
+  'bg-blue-600 text-white': form.value.estado === 'disponible',
+  'bg-yellow-500 text-black': form.value.estado === 'apartado',
+  'bg-purple-600 text-white': form.value.estado === 'taller',
+  'bg-green-500 text-white': form.value.estado === 'vendido',
+}))
 </script>
 
 <template>
@@ -108,7 +140,13 @@ const costoReal = computed(() =>
       ============================== -->
       <div class="max-w-xl w-1/2 space-y-6">
 
-        <h1 class="text-2xl font-bold">Editar / Vender Carro</h1>
+        <div class="flex items-center gap-4">
+          <h1 class="text-2xl font-bold">Editar / Vender Carro</h1>
+          <!-- Badge estado -->
+          <span :class="badgeClass" class="px-3 py-1 rounded-full text-white text-xs font-bold uppercase">
+            {{ form.estado }}
+          </span>
+        </div>
 
         <!-- FORM -->
         <form @submit.prevent="submit" class="space-y-4">
@@ -147,6 +185,10 @@ const costoReal = computed(() =>
           <div>
             <Label>Cambiar imagen</Label>
             <Input type="file" accept="image/*" @change="handleImageChange" />
+            <Button v-if="imagenPreview" type="button" variant="outline"
+              class="mt-2 text-red-500 border-red-400 hover:bg-red-50" @click="quitarImagen">
+              Quitar imagen
+            </Button>
           </div>
 
           <!-- SOLO SI SE VENDE -->
@@ -172,8 +214,8 @@ const costoReal = computed(() =>
           </div>
 
           <div class="flex gap-4 pt-4">
-            <Button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              Guardar cambios
+            <Button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white" :disabled="loading">
+              {{ loading ? 'Guardando...' : 'Guardar cambios' }}
             </Button>
 
             <Button as="a" href="/carros" variant="outline">
@@ -195,11 +237,10 @@ const costoReal = computed(() =>
           <li v-for="g in props.carro.gastos" :key="g.id" class="flex justify-between items-center border-b py-1">
             <div>
               <p class="font-medium">{{ g.concepto }}</p>
-              <p class="text-sm text-gray-500">${{ g.monto }}</p>
+              <p class="text-sm text-gray-500">{{ money(Number(g.monto)) }}</p>
             </div>
 
-            <Button size="sm" class="bg-red-600 hover:bg-red-700 text-white"
-              @click="router.delete(`/gastos/${g.id}`, { preserveScroll: true })">
+            <Button size="sm" class="bg-red-600 hover:bg-red-700 text-white" @click="eliminarGasto(g.id)">
               Eliminar
             </Button>
           </li>
@@ -207,10 +248,10 @@ const costoReal = computed(() =>
 
         <!-- RESUMEN -->
         <div class="mt-4 p-4 rounded-lg bg-gray-100 dark:bg-gray-800 space-y-1">
-          <p><strong>Compra base:</strong> ${{ form.precio_compra }}</p>
-          <p><strong>Total gastos:</strong> ${{ totalGastos }}</p>
+          <p><strong>Compra base:</strong> {{ money(Number(form.precio_compra)) }}</p>
+          <p><strong>Total gastos:</strong> {{ money(totalGastos) }}</p>
           <p class="text-lg font-bold text-emerald-600">
-            Costo real: ${{ costoReal }}
+            Costo real: {{ money(costoReal) }}
           </p>
         </div>
 
@@ -220,10 +261,10 @@ const costoReal = computed(() =>
            DERECHA (IMAGEN GRANDE)
       ============================== -->
       <div class="w-1/2 flex items-stretch justify-center">
-        <div v-if="imagenPreview" class="w-full">
+        <div v-if="imagenPreview" class="w-full space-y-2">
           <img :src="imagenPreview" class="rounded-xl shadow-xl w-full h-[350px] object-cover" />
         </div>
-        <div v-else class="text-gray-400 text-center">
+        <div v-else class="text-gray-400 text-center self-center">
           La imagen del vehículo se verá aquí
         </div>
       </div>
