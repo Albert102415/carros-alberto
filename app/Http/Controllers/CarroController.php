@@ -13,7 +13,7 @@ class CarroController extends Controller
     public function index()
     {
         return Inertia::render('Carros/Index', [
-            'carros' => Carro::all(),
+            'carros' => Carro::with(['gastos', 'expediente'])->get(),
         ]);
     }
 
@@ -38,14 +38,13 @@ class CarroController extends Controller
             'imagen' => 'nullable|image|max:2048',
         ]);
 
-        // 🔥 GUARDAR IMAGEN
         if ($request->hasFile('imagen')) {
             $data['imagen'] = $request->file('imagen')->store('carros', 'public');
         }
 
         Carro::create($data);
 
-        return redirect()->route('carros.index');
+        return redirect()->route('carros.index')->with('success', 'Carro creado correctamente');
     }
 
     public function edit(Carro $carro)
@@ -73,28 +72,20 @@ class CarroController extends Controller
             'imagen' => 'nullable|image|max:2048',
         ]);
 
-        // 🔥 SI SE VENDE Y NO TRAE FECHA
         if ($data['estado'] === 'vendido' && empty($data['fecha_venta'])) {
             $data['fecha_venta'] = now();
         }
 
-        // 🔥 MANEJO DE IMAGEN
         if ($request->hasFile('imagen')) {
-
             if ($carro->imagen) {
                 Storage::disk('public')->delete($carro->imagen);
             }
-
             $data['imagen'] = $request->file('imagen')->store('carros', 'public');
         }
 
         $carro->update($data);
 
-        /* ===========================
-           GENERAR GANANCIA AUTOMÁTICA
-        ============================ */
         if ($data['estado'] === 'vendido' && $data['precio_venta']) {
-
             $totalGastos = $carro->gastos()->sum('monto');
             $totalInvertido = ($carro->precio_compra ?? 0) + $totalGastos;
             $gananciaFinal = $data['precio_venta'] - $totalInvertido;
@@ -110,7 +101,7 @@ class CarroController extends Controller
             );
         }
 
-        return redirect()->route('carros.index');
+        return redirect()->route('carros.edit', $carro->id)->with('success', 'Cambios guardados correctamente');
     }
 
     public function destroy(Carro $carro)
@@ -121,7 +112,7 @@ class CarroController extends Controller
 
         $carro->delete();
 
-        return redirect()->route('carros.index');
+        return redirect()->route('carros.index')->with('success', 'Carro eliminado correctamente');
     }
 
     public function marcarVendido(Request $request, Carro $carro)

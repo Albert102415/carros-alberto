@@ -3,9 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Customer;
-use App\Models\Gasto;
-use App\Models\Ganancia;
 
 class Carro extends Model
 {
@@ -53,20 +50,35 @@ class Carro extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function employees()
+    {
+        return $this->belongsToMany(
+            Employee::class,
+            'car_employee',
+            'carro_id',
+            'employee_id'
+        )
+            ->withPivot('pagado')
+            ->withTimestamps();
+    }
+
+    public function expediente()
+    {
+        return $this->hasOne(Expediente::class);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | ATRIBUTOS CALCULADOS
     |--------------------------------------------------------------------------
     */
 
-    // 🔥 Precio compra + gastos
-    public function getCostoRealAttribute()
+    public function getCostoRealAttribute(): float
     {
         return $this->precio_compra + $this->gastos->sum('monto');
     }
 
-    // 🔥 Ganancia real cuando está vendido
-    public function getGananciaRealAttribute()
+    public function getGananciaRealAttribute(): ?float
     {
         if ($this->estado !== 'vendido' || !$this->precio_venta) {
             return null;
@@ -75,8 +87,7 @@ class Carro extends Model
         return $this->precio_venta - $this->costo_real;
     }
 
-    // 🔥 Deuda del cliente
-    public function getDeudaAttribute()
+    public function getDeudaAttribute(): float
     {
         if ($this->estado !== 'vendido' || !$this->precio_venta) {
             return 0;
@@ -87,32 +98,16 @@ class Carro extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | EVENTOS AUTOMÁTICOS
+    | EVENTOS
     |--------------------------------------------------------------------------
     */
 
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::updating(function ($carro) {
+        static::updating(function (self $carro) {
             if ($carro->isDirty('estado') && $carro->estado === 'vendido') {
                 $carro->fecha_venta = now();
             }
         });
-    }
-    /*
-    |--------------------------------------------------------------------------
-    | Realcion de carros con empleados
-    |--------------------------------------------------------------------------
-    */
-    public function employees()
-    {
-        return $this->belongsToMany(
-            \App\Models\Employee::class,
-            'car_employee',
-            'carro_id',
-            'employee_id'
-        )
-            ->withPivot('pagado')
-            ->withTimestamps();
     }
 }

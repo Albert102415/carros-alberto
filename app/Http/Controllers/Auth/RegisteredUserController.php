@@ -16,36 +16,46 @@ use Inertia\Response;
 class RegisteredUserController extends Controller
 {
     /**
-     * Show the registration page.
+     * Lista de usuarios — solo para admin autenticado
      */
-    public function create(): Response
+    public function index(): Response
     {
-        return Inertia::render('auth/Register');
+        return Inertia::render('Usuarios/Index', [
+            'usuarios' => User::orderBy('created_at', 'desc')->get(),
+        ]);
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Crear usuario desde panel admin
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($user));
+        return redirect()->route('usuarios.index')->with('success', 'Usuario creado correctamente');
+    }
 
-        Auth::login($user);
+    /**
+     * Eliminar usuario
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'No puedes eliminarte a ti mismo');
+        }
 
-        return to_route('dashboard');
+        $user->delete();
+
+        return back()->with('success', 'Usuario eliminado');
     }
 }

@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { Head, router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { Head, router, usePage } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+
+const page = usePage()
+const mensaje = computed(() => (page.props.flash as any)?.success)
 
 type BreadcrumbItem = { title: string; href: string }
 const breadcrumbs: BreadcrumbItem[] = [
@@ -32,9 +35,9 @@ const resetForm = () => {
     proveedor: '',
     precio_compra: undefined,
     estado: 'disponible',
-    imagen: null as File | null,
-
+    imagen: null,
   }
+  imagenPreview.value = null
 }
 
 const submit = () => {
@@ -59,7 +62,6 @@ const handleImageChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
     form.value.imagen = target.files[0]
-
     const reader = new FileReader()
     reader.onload = () => {
       imagenPreview.value = reader.result as string
@@ -75,7 +77,14 @@ const handleImageChange = (e: Event) => {
 
   <AppLayout :breadcrumbs="breadcrumbs">
     <div class="flex flex-1 flex-col gap-4 rounded-xl p-4">
+
       <h1 class="text-2xl font-bold">Crear Carro</h1>
+
+      <!-- MENSAJE ÉXITO -->
+      <div v-if="mensaje" class="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300
+               px-4 py-3 rounded-lg text-sm font-medium max-w-lg">
+        ✅ {{ mensaje }}
+      </div>
 
       <form @submit.prevent="submit" class="space-y-6 max-w-lg">
 
@@ -126,7 +135,7 @@ const handleImageChange = (e: Event) => {
         </div>
 
         <div class="flex gap-4">
-          <Button type="submit" class="bg-indigo-500 hover:bg-indigo-600">
+          <Button type="submit" class="bg-indigo-500 hover:bg-indigo-600 text-white">
             Guardar
           </Button>
           <Button as="a" href="/carros" variant="outline">
@@ -135,6 +144,7 @@ const handleImageChange = (e: Event) => {
         </div>
 
       </form>
+
       <div class="w-1/2 flex items-center justify-center">
         <div v-if="imagenPreview" class="w-full">
           <img :src="imagenPreview" class="rounded-xl shadow-xl w-full h-[400px] object-cover" />
@@ -143,6 +153,7 @@ const handleImageChange = (e: Event) => {
           La imagen se verá aquí
         </div>
       </div>
+
     </div>
   </AppLayout>
 </template>

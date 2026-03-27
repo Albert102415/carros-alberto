@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
-import { Head, router } from '@inertiajs/vue3'
+import { Head, router, usePage } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 const props = defineProps<{ carro: any }>()
+
+const page = usePage()
+const mensaje = computed(() => (page.props.flash as any)?.success)
 
 /* =============================
    FORMAT MONEY
@@ -77,7 +80,6 @@ const submit = () => {
 
   router.post(`/carros/${form.value.id}`, data, {
     forceFormData: true,
-    onSuccess: () => alert('✅ Cambios guardados correctamente'),
     onFinish: () => { loading.value = false },
   })
 }
@@ -92,7 +94,6 @@ const gasto = ref({
 
 const addGasto = () => {
   if (!gasto.value.concepto || !gasto.value.monto) return
-
   router.post(`/carros/${form.value.id}/gastos`, gasto.value, {
     preserveScroll: true,
     onSuccess: () => {
@@ -135,17 +136,19 @@ const badgeClass = computed(() => ({
   <AppLayout>
     <div class="p-4 flex gap-8">
 
-      <!-- =============================
-           IZQUIERDA (FORM + GASTOS)
-      ============================== -->
       <div class="max-w-xl w-1/2 space-y-6">
 
         <div class="flex items-center gap-4">
-          <h1 class="text-2xl font-bold">Editar / Vender Carro</h1>
-          <!-- Badge estado -->
+          <h1 class="text-2xl font-bold">Editar / Gastos del Carro</h1>
           <span :class="badgeClass" class="px-3 py-1 rounded-full text-white text-xs font-bold uppercase">
             {{ form.estado }}
           </span>
+        </div>
+
+        <!-- MENSAJE ÉXITO -->
+        <div v-if="mensaje" class="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300
+                 px-4 py-3 rounded-lg text-sm font-medium">
+          ✅ {{ mensaje }}
         </div>
 
         <!-- FORM -->
@@ -181,7 +184,6 @@ const badgeClass = computed(() => ({
             <Input type="number" step="0.01" v-model="form.precio_compra" />
           </div>
 
-          <!-- IMAGEN -->
           <div>
             <Label>Cambiar imagen</Label>
             <Input type="file" accept="image/*" @change="handleImageChange" />
@@ -191,7 +193,6 @@ const badgeClass = computed(() => ({
             </Button>
           </div>
 
-          <!-- SOLO SI SE VENDE -->
           <div v-if="form.estado === 'vendido'">
             <Label>Precio de venta</Label>
             <Input type="number" step="0.01" v-model="form.precio_venta" required />
@@ -217,11 +218,11 @@ const badgeClass = computed(() => ({
             <Button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white" :disabled="loading">
               {{ loading ? 'Guardando...' : 'Guardar cambios' }}
             </Button>
-
             <Button as="a" href="/carros" variant="outline">
               Cancelar
             </Button>
           </div>
+
         </form>
 
         <!-- GASTOS -->
@@ -239,7 +240,6 @@ const badgeClass = computed(() => ({
               <p class="font-medium">{{ g.concepto }}</p>
               <p class="text-sm text-gray-500">{{ money(Number(g.monto)) }}</p>
             </div>
-
             <Button size="sm" class="bg-red-600 hover:bg-red-700 text-white" @click="eliminarGasto(g.id)">
               Eliminar
             </Button>
@@ -257,9 +257,7 @@ const badgeClass = computed(() => ({
 
       </div>
 
-      <!-- =============================
-           DERECHA (IMAGEN GRANDE)
-      ============================== -->
+      <!-- DERECHA (IMAGEN) -->
       <div class="w-1/2 flex items-stretch justify-center">
         <div v-if="imagenPreview" class="w-full space-y-2">
           <img :src="imagenPreview" class="rounded-xl shadow-xl w-full h-[350px] object-cover" />

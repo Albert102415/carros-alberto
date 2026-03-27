@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, router } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
-import { Pencil, Trash, CirclePlus, Search, X, Car } from 'lucide-vue-next'
+import { Pencil, Trash, CirclePlus, Search, X, Car, FileText } from 'lucide-vue-next'
 import { ref, computed } from 'vue'
 
 const props = defineProps<{ carros: any[] }>()
@@ -34,6 +34,7 @@ const filtroLinea = ref('')
 const filtroAnio = ref('')
 const filtroEstado = ref('')
 const buscador = ref('')
+const filtroCliente = ref('')
 
 const limpiarFiltros = () => {
   filtroMarca.value = ''
@@ -41,11 +42,13 @@ const limpiarFiltros = () => {
   filtroAnio.value = ''
   filtroEstado.value = ''
   buscador.value = ''
+  filtroCliente.value = ''
   paginaActual.value = 1
 }
 
 const hayFiltrosActivos = computed(() =>
-  filtroMarca.value || filtroLinea.value || filtroAnio.value || filtroEstado.value || buscador.value
+  filtroMarca.value || filtroLinea.value || filtroAnio.value ||
+  filtroEstado.value || buscador.value || filtroCliente.value
 )
 
 /* =========================
@@ -81,6 +84,12 @@ const carrosFiltrados = computed(() => {
     if (filtroLinea.value && c.linea !== filtroLinea.value) return false
     if (filtroAnio.value && c.anio != filtroAnio.value) return false
     if (filtroEstado.value && c.estado !== filtroEstado.value) return false
+    if (filtroCliente.value) {
+      const texto = filtroCliente.value.toLowerCase()
+      const nombre = c.expediente?.cliente?.toLowerCase() ?? ''
+      const telefono = c.expediente?.telefono?.toLowerCase() ?? ''
+      if (!nombre.includes(texto) && !telefono.includes(texto)) return false
+    }
     return true
   })
 
@@ -185,6 +194,10 @@ const cambiarPagina = (p: number) => {
             <option value="desc">Descendente</option>
           </select>
 
+          <input v-model="filtroCliente" placeholder="👤 Cliente" class="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm
+                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+
           <button v-if="hayFiltrosActivos" @click="limpiarFiltros" class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm
                    bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900 dark:text-red-300
                    transition font-medium">
@@ -217,7 +230,6 @@ const cambiarPagina = (p: number) => {
               <Car class="w-12 h-12 text-gray-400" />
             </div>
 
-            <!-- Badge estado -->
             <span class="absolute top-2 right-2 px-2 py-0.5 rounded text-xs font-semibold" :class="{
               'bg-blue-600 text-white': carro.estado === 'disponible',
               'bg-yellow-500 text-black': carro.estado === 'apartado',
@@ -231,7 +243,6 @@ const cambiarPagina = (p: number) => {
           <!-- INFO -->
           <div class="p-3 space-y-2">
 
-            <!-- Nombre del carro -->
             <p class="font-semibold text-sm leading-tight">
               {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }}
             </p>
@@ -239,7 +250,6 @@ const cambiarPagina = (p: number) => {
 
             <hr class="border-gray-200 dark:border-gray-700" />
 
-            <!-- Proveedor y fecha -->
             <div class="flex justify-between items-center text-xs">
               <span class="text-gray-400">Proveedor</span>
               <span class="font-medium">{{ carro.proveedor ?? '—' }}</span>
@@ -250,9 +260,19 @@ const cambiarPagina = (p: number) => {
               <span class="font-medium">{{ carro.fecha_venta ?? '—' }}</span>
             </div>
 
+            <!-- Cliente desde expediente -->
+            <div v-if="carro.expediente?.cliente" class="flex justify-between items-center text-xs">
+              <span class="text-gray-400">Cliente</span>
+              <span class="font-medium">{{ carro.expediente.cliente }}</span>
+            </div>
+
+            <div v-if="carro.expediente?.telefono" class="flex justify-between items-center text-xs">
+              <span class="text-gray-400">Teléfono</span>
+              <span class="font-medium">{{ carro.expediente.telefono }}</span>
+            </div>
+
             <hr class="border-gray-200 dark:border-gray-700" />
 
-            <!-- Costo real -->
             <div class="flex justify-between items-center">
               <span class="text-xs text-gray-400">Costo real</span>
               <span class="text-sm font-bold text-emerald-600">
@@ -260,7 +280,6 @@ const cambiarPagina = (p: number) => {
               </span>
             </div>
 
-            <!-- Ganancia (solo si vendido) -->
             <div v-if="carro.estado === 'vendido'" class="flex justify-between items-center">
               <span class="text-xs text-gray-400">Ganancia</span>
               <span class="text-sm font-bold" :class="carro.ganancia_real >= 0 ? 'text-green-600' : 'text-red-500'">
@@ -269,6 +288,7 @@ const cambiarPagina = (p: number) => {
             </div>
 
           </div>
+
           <!-- ACCIONES -->
           <div class="px-3 pb-3 flex gap-2">
             <Button size="sm" variant="outline" as-child class="flex-1">
@@ -276,10 +296,16 @@ const cambiarPagina = (p: number) => {
                 <Pencil class="w-3 h-3" /> Editar
               </a>
             </Button>
+            <Button size="sm" variant="outline" as-child>
+              <a :href="`/carros/${carro.id}/expediente`" class="flex items-center justify-center gap-1">
+                <FileText class="w-3 h-3" /> Cliente
+              </a>
+            </Button>
             <Button size="sm" class="bg-red-600 text-white hover:bg-red-700" @click="deleteCarro(carro.id)">
               <Trash class="w-3 h-3" />
             </Button>
           </div>
+
         </div>
 
       </div>

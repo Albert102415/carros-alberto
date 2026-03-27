@@ -57,18 +57,11 @@ import { Car, DollarSign, BarChart3, LogIn, ArrowRight } from 'lucide-vue-next'
             <div class="mt-10 flex flex-col sm:flex-row gap-4 relative">
 
                 <!-- ENTRAR -->
-                <a href="/login" class="group flex items-center justify-center gap-2 rounded-2xl px-8 py-3 font-semibold 
-                          bg-emerald-600/80 backdrop-blur-lg border border-emerald-400/30 
-                          hover:bg-emerald-600 transition-all duration-300 shadow-lg">
-                    Entrar
-                    <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition" />
-                </a>
-
-                <!-- REGISTRARSE -->
-                <a href="/register" class="flex items-center justify-center gap-2 rounded-2xl px-8 py-3 font-semibold 
+                <a href="/login" class="flex items-center justify-center gap-2 rounded-2xl px-8 py-3 font-semibold 
                           bg-indigo-600/30 backdrop-blur-lg border border-indigo-400/40 
                           hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-lg">
-                    Registrarse
+                    Entrar
+                    <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition" />
                 </a>
 
             </div>
