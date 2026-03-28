@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expediente extends Model
 {
-    protected $fillable = ['carro_id', 'cliente', 'telefono'];
+    protected $fillable = ['carro_id', 'cliente', 'telefono', 'domicilio'];
 
     public function carro()
     {

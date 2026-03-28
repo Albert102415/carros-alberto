@@ -19,6 +19,7 @@ class ExpedienteController extends Controller
             $carro->expediente()->create([
                 'cliente' => null,
                 'telefono' => null,
+                'domicilio' => null,
             ]);
             $carro->load('expediente.archivos');
         }
@@ -33,6 +34,7 @@ class ExpedienteController extends Controller
         $request->validate([
             'cliente' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:20',
+            'domicilio' => 'nullable|string|max:255',
         ]);
 
         $carro->expediente()->updateOrCreate(
@@ -40,6 +42,7 @@ class ExpedienteController extends Controller
             [
                 'cliente' => $request->cliente,
                 'telefono' => $request->telefono,
+                'domicilio' => $request->domicilio,
             ]
         );
 
@@ -73,5 +76,28 @@ class ExpedienteController extends Controller
         $archivo->delete();
 
         return back()->with('success', 'Archivo eliminado');
+    }
+    /* ============================
+       CONTRATO
+    ============================ */
+    public function generarContrato(Carro $carro)
+    {
+        $carro->load('gastos', 'expediente');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.contrato', compact('carro'))
+            ->setPaper('letter', 'portrait');
+
+        // Guardar ruta en expediente
+        $nombreArchivo = "contrato_{$carro->marca}_{$carro->modelo}_{$carro->id}.pdf";
+        $path = "expedientes/contratos/{$nombreArchivo}";
+
+        \Storage::disk('public')->put($path, $pdf->output());
+
+        // Guardar en tabla expedientes
+        if ($carro->expediente) {
+            $carro->expediente->update(['contrato' => $path]);
+        }
+
+        return $pdf->stream($nombreArchivo);
     }
 }

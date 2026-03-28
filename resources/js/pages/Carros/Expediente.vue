@@ -5,7 +5,7 @@ import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Trash, Download } from 'lucide-vue-next'
+import { Trash } from 'lucide-vue-next'
 
 const props = defineProps<{ carro: any }>()
 
@@ -17,6 +17,7 @@ const tiposArchivo = ['Contrato', 'Factura', 'Tenencia', 'Verificación', 'Carta
 const form = ref({
     cliente: props.carro.expediente?.cliente ?? '',
     telefono: props.carro.expediente?.telefono ?? '',
+    domicilio: props.carro.expediente?.domicilio ?? '',
 })
 
 const nuevoArchivo = ref({
@@ -91,18 +92,22 @@ const iconoTipo = (tipo: string) => {
         <div class="p-6 max-w-3xl mx-auto space-y-8">
 
             <!-- HEADER -->
-            <div class="flex items-center gap-4">
+            <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-2xl font-bold">Expediente</h1>
                     <p class="text-sm text-gray-400">
                         {{ carro.marca }} {{ carro.linea }} {{ carro.modelo }} · {{ carro.color }}
                     </p>
                 </div>
+
+                <a v-if="carro.estado === 'vendido'" :href="`/carros/${carro.id}/expediente/contrato`" target="_blank"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition">📄
+                    Generar contrato</a>
             </div>
 
             <!-- MENSAJE ÉXITO -->
-            <div v-if="mensaje" class="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300
-                       px-4 py-3 rounded-lg text-sm font-medium">
+            <div v-if="mensaje"
+                class="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg text-sm font-medium">
                 ✅ {{ mensaje }}
             </div>
 
@@ -118,6 +123,10 @@ const iconoTipo = (tipo: string) => {
                     <div>
                         <Label>Teléfono</Label>
                         <Input v-model="form.telefono" placeholder="Teléfono (opcional)" />
+                    </div>
+                    <div>
+                        <Label>Domicilio</Label>
+                        <Input v-model="form.domicilio" placeholder="Domicilio (opcional)" />
                     </div>
                 </div>
 
@@ -138,9 +147,8 @@ const iconoTipo = (tipo: string) => {
                     </div>
                     <div>
                         <Label>Tipo</Label>
-                        <select v-model="nuevoArchivo.tipo" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm
-                                   bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                                   focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select v-model="nuevoArchivo.tipo"
+                            class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option v-for="t in tiposArchivo" :key="t" :value="t">{{ t }}</option>
                         </select>
                     </div>
